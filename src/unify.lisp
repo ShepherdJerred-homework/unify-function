@@ -1,6 +1,43 @@
 ; unify
 ; Jerred Shepherd
 
+; Takes a term and applies a substitution to it
+; sub is the form of (X . B) where X is the target and B is the replacement value 
+(defun apply-one-sub
+  (term sub)
+  (let
+    (
+      (sub-key (car sub))
+      (sub-value (cdr sub)))
+    (if
+      (eq term sub-key)
+      sub-value
+      (if
+        (atom term)
+        term
+        (cons (apply-one-sub (car term) sub) (apply-one-sub (cdr term) sub))))))
+
+; Apply subs to a term
+; subs follows this form ((X . B))
+(defun apply-subs
+  (term subs)
+  (if
+    (atom subs)
+    (apply-one-sub term (car sub))
+    (apply-subs (apply-one-sub term (car sub)) (cdr subs))))
+
+(defun occurs
+  (term sigma)
+  (if
+    (eq (caar sigma) term)
+    T
+    (if
+      (null (cdr sigma))
+      nil
+      (occurs term (cdr sigma)))))
+
+; TODO apply sub in sigma
+; TODO apply sub in terms
 (defun do-unify
   (t1 t2 sigma)
   (if
@@ -12,22 +49,22 @@
         (atom t2))
       (if
         (isvar t1)
-        (let*
-          (
-            (new-sigma
-              (if
-                (eq sigma '(nil))
-                (cons (cons t1 t2) nil)
-                (cons sigma (cons t1 t2))))
-            (new-t1 t2))
-          (do-unify new-t1 t2 new-sigma))
+        (if
+          (equal sigma '(nil))
+          (cons (cons t1 t2) nil)
+          (if
+            (occurs t1 sigma)
+            nil
+            (append (cons (cons t1 t2) nil) sigma)))
         (if
           (isvar t2)
           (do-unify t2 t1 sigma)
           nil))
       (let*
         (
-          (new-sigma (do-unify (car t1) (car t2) sigma)))
+          (new-sigma (do-unify (car t1) (car t2) sigma))
+          (new-t1 t1)
+          (new-t2 t1))
         (if
           (null new-sigma)
           nil
@@ -36,3 +73,4 @@
 (defun unify
   (t1 t2)
   (do-unify t1 t2 '(nil)))
+

@@ -40,4 +40,7 @@
     (nil))
   (equal
     (unify '(a + a) '(b + b))
+    nil)
+  (equal
+    (unify '(x + x) '(a + b))
     nil))
