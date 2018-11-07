@@ -5,13 +5,7 @@
   (trace unify)
   (trace do-unify)
   (trace match)
-  (trace simplify)
-  (trace is-nil-list)
-  (trace either-null)
-  (trace both-nil-list)
-  (trace merge-two-lists)
-  (trace merge-three-lists)
-  (trace merge-sigma))
+  (trace simplify))
 
 (and
   (equal
@@ -34,4 +28,16 @@
     '((Y . A) (X - B C)))
   (equal
     (unify '(+ Z (+ B A)) '(+ C (+ Y X)))
-    '((X . A) (Y . B) (Z . C))))
+    '((X . A) (Y . B) (Z . C)))
+  (equal
+    (unify 'a 'a)
+    '(nil))
+  (equal
+    (unify 'b 'a)
+    nil)
+  (equal
+    (unify '(a + b) '(a + b))
+    (nil))
+  (equal
+    (unify '(a + a) '(b + b))
+    nil))
