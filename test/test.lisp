@@ -5,7 +5,9 @@
   (trace unify)
   (trace do-unify)
   (trace match)
-  (trace simplify))
+  (trace simplify)
+  (trace apply-subs)
+  (trace apply-one-sub))
 
 (and
   (equal
@@ -37,10 +39,20 @@
     nil)
   (equal
     (unify '(a + b) '(a + b))
-    (nil))
+    '(nil))
   (equal
     (unify '(a + a) '(b + b))
     nil)
   (equal
     (unify '(x + x) '(a + b))
     nil))
+
+(apply-one-sub '(X) '(X . A))
+(apply-one-sub '(X) '(X A B))
+(apply-one-sub '(X X) '(X . A))
+(apply-one-sub '(Y (Y (X))) '(X . A))
+
+(apply-subs
+  '(X)
+  '((X . A)))
+

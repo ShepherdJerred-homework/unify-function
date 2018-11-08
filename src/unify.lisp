@@ -23,8 +23,8 @@
   (term subs)
   (if
     (atom subs)
-    (apply-one-sub term (car sub))
-    (apply-subs (apply-one-sub term (car sub)) (cdr subs))))
+    (apply-one-sub term (car subs))
+    (apply-subs (apply-one-sub term (car subs)) (cdr subs))))
 
 (defun occurs
   (term sigma)
@@ -36,8 +36,6 @@
       nil
       (occurs term (cdr sigma)))))
 
-; TODO apply sub in sigma
-; TODO apply sub in terms
 (defun do-unify
   (t1 t2 sigma)
   (if
@@ -55,7 +53,10 @@
           (if
             (occurs t1 sigma)
             nil
-            (append (cons (cons t1 t2) nil) sigma)))
+            (let
+              (
+                (new-rule (cons (cons t1 t2) nil)))
+              (append new-rule (apply-subs sigma new-rule)))))
         (if
           (isvar t2)
           (do-unify t2 t1 sigma)
@@ -63,12 +64,12 @@
       (let*
         (
           (new-sigma (do-unify (car t1) (car t2) sigma))
-          (new-t1 t1)
-          (new-t2 t1))
+          (new-t1 (apply-subs t1 new-sigma))
+          (new-t2 (apply-subs t2 new-sigma)))
         (if
           (null new-sigma)
           nil
-          (do-unify (cdr t1) (cdr t2) new-sigma))))))
+          (do-unify (cdr new-t1) (cdr new-t2) new-sigma))))))
 
 (defun unify
   (t1 t2)
